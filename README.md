@@ -48,6 +48,7 @@ SmartApply.ai helps job seekers generate a complete, tailored application kit in
 
 ##  Built By
 
-Mansi Sharma — Biotechnology Graduate, Thapar Institute of Engineering & Technology
+Mansi Sharma
+
 
 [LinkedIn](https://linkedin.com/in/mansi-sharma-b1597a312)
