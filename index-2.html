@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartApply Agent — AI Job Application Copilot</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- CSS Style Sheets -->
+    <link rel="stylesheet" href="styles.css">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Marked.js for Markdown Parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i data-lucide="cpu" class="logo-icon"></i>
+                    <span>SmartApply<span class="logo-accent">.ai</span></span>
+                </div>
+                <button class="mobile-close" id="mobileCloseBtn">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="#dashboard" class="nav-link active" data-target="dashboard">
+                            <i data-lucide="layout-dashboard"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#resume" class="nav-link" data-target="resume">
+                            <i data-lucide="file-text"></i>
+                            <span>Resume Profile</span>
+                            <span class="badge" id="resumeBadge">Missing</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#search" class="nav-link" data-target="search">
+                            <i data-lucide="search"></i>
+                            <span>Job Search</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#kit" class="nav-link" data-target="kit" id="navLinkKit">
+                            <i data-lucide="sparkles"></i>
+                            <span>Application Kit</span>
+                            <span class="badge badge-pulse" id="kitActiveBadge" style="display: none;">Active</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#settings" class="nav-link" data-target="settings">
+                            <i data-lucide="settings"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-status">
+                    <i data-lucide="zap" class="status-icon active"></i>
+                    <div class="status-info">
+                        <p class="status-title">Gemini API Ready</p>
+                        <p class="status-desc" id="statusDescText">Add key in Settings</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="mobile-toggle" id="mobileToggleBtn">
+                        <i data-lucide="menu"></i>
+                    </button>
+                    <h1 class="page-title" id="pageTitle">Dashboard</h1>
+                </div>
+                <div class="header-right">
+                    <div class="api-indicators">
+                        <span class="indicator-badge" id="geminiIndicator">
+                            <span class="dot red"></span> Gemini Key Missing
+                        </span>
+                        <span class="indicator-badge" id="jsearchIndicator">
+                            <span class="dot orange" id="jsearchDot"></span> <span id="jsearchStatusText">JSearch: Mock
+                                Mode</span>
+                        </span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content-container">
+                <!-- VIEW 1: Dashboard -->
+                <section id="view-dashboard" class="content-view active">
+                    <div class="welcome-banner">
+                        <div class="welcome-text">
+                            <h2>Supercharge Your Job Search with AI</h2>
+                            <p>Generate highly tailored resume bullets, cover letters, recruiter cold emails, LinkedIn
+                                outreach, skills gap analyses, company briefs, and custom interview prep questions in
+                                seconds.</p>
+                        </div>
+                        <div class="welcome-actions">
+                            <button class="btn btn-primary" onclick="window.app.navigateTo('resume')">
+                                <i data-lucide="file-plus"></i> Set Up Resume
+                            </button>
+                            <button class="btn btn-secondary" onclick="window.app.navigateTo('search')">
+                                <i data-lucide="briefcase"></i> Browse Jobs
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Dashboard Stats Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon-wrapper blue">
+                                <i data-lucide="file-text"></i>
+                            </div>
+                            <div class="stat-data">
+                                <h3>Resume Status</h3>
+                                <p class="stat-value" id="dashResumeStatus">Not Uploaded</p>
+                                <p class="stat-sub" id="dashResumeSub">Paste your resume to begin tailoring.</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon-wrapper purple">
+                                <i data-lucide="briefcase"></i>
+                            </div>
+                            <div class="stat-data">
+                                <h3>Selected Job</h3>
+                                <p class="stat-value text-truncate" id="dashSelectedJob">None</p>
+                                <p class="stat-sub" id="dashSelectedJobSub">Select a job from Search to load kit.</p>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon-wrapper green">
+                                <i data-lucide="sparkles"></i>
+                            </div>
+                            <div class="stat-data">
+                                <h3>Kits Generated</h3>
+                                <p class="stat-value" id="dashKitsCount">0</p>
+                                <p class="stat-sub">Across your current session.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Steps Timeline -->
+                    <div class="dashboard-section card">
+                        <h3>Getting Started Guide</h3>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-step">1</div>
+                                <div class="timeline-content">
+                                    <h4>Enter Your Resume</h4>
+                                    <p>Go to the <strong>Resume Profile</strong> tab. Paste your current resume in plain
+                                        text. SmartApply.ai will remember it for your session to customize all assets.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-step">2</div>
+                                <div class="timeline-content">
+                                    <h4>Search for Listings</h4>
+                                    <p>Go to the <strong>Job Search</strong> tab. Enter a job title and location to
+                                        fetch real jobs (using JSearch) or test with realistic generated fallback jobs.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-step">3</div>
+                                <div class="timeline-content">
+                                    <h4>Unlock Your Application Kit</h4>
+                                    <p>Click "Generate Kit" on any job card. Our agent will analyze the job description
+                                        and create a personalized re-writer, cover letter, emails, skills review, and
+                                        mock interview questions.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 2: Resume Profile -->
+                <section id="view-resume" class="content-view">
+                    <div class="grid-layout two-column">
+                        <div class="card editor-card">
+                            <div class="card-header">
+                                <h3>Paste Resume Plain Text</h3>
+                                <span class="badge badge-info" id="resumeCharCount">0 characters</span>
+                            </div>
+                            <div class="card-body">
+                                <textarea id="resumeInput" class="form-control text-area"
+                                    placeholder="Paste your current resume here...&#10;&#10;Tip: Include your contact details, professional summary, work experience (with bullet points), key skills, and education for the best AI customization."></textarea>
+                                <div class="editor-actions">
+                                    <button class="btn btn-secondary" id="loadSampleResumeBtn">
+                                        <i data-lucide="file-text"></i> Load Sample Resume
+                                    </button>
+                                    <button class="btn btn-primary" id="saveResumeBtn">
+                                        <i data-lucide="save"></i> Save Resume
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card preview-card">
+                            <div class="card-header">
+                                <h3>Resume Preview & Analysis</h3>
+                            </div>
+                            <div class="card-body" id="resumePreviewContainer">
+                                <div class="empty-state">
+                                    <i data-lucide="file-question" class="empty-icon"></i>
+                                    <h4>No Resume Saved Yet</h4>
+                                    <p>Paste your resume on the left and click Save to store it in your session storage.
+                                        Once saved, you'll see a brief analysis of the sections detected.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 3: Job Search -->
+                <section id="view-search" class="content-view">
+                    <div class="card search-control-card">
+                        <form id="jobSearchForm" class="search-form">
+                            <div class="form-group flex-2">
+                                <label for="searchTitle"><i data-lucide="briefcase"></i> Job Title / Keywords</label>
+                                <input type="text" id="searchTitle" class="form-control"
+                                    placeholder="e.g. Business Analyst, Frontend Engineer" required>
+                            </div>
+                            <div class="form-group flex-1">
+                                <label for="searchLocation"><i data-lucide="map-pin"></i> Location</label>
+                                <input type="text" id="searchLocation" class="form-control"
+                                    placeholder="e.g. Mumbai, Remote, New York">
+                            </div>
+                            <div class="form-group btn-group-align">
+                                <button type="submit" class="btn btn-primary btn-block search-btn" id="searchBtn">
+                                    <i data-lucide="search"></i> Find Jobs
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="search-results-section">
+                        <div class="results-header">
+                            <h3 id="searchResultsTitle">Recommended Opportunities</h3>
+                            <span class="results-count" id="searchResultsCount">0 jobs found</span>
+                        </div>
+
+                        <!-- Search Results Grid -->
+                        <div class="jobs-grid" id="jobsGrid">
+                            <!-- Job cards are injected here dynamically -->
+                        </div>
+
+                        <!-- Empty State (sibling of grid, never moved inside it) -->
+                        <div class="empty-state-full" id="searchEmptyState">
+                            <i data-lucide="briefcase" class="empty-icon"></i>
+                            <h4>Find Your Next Role</h4>
+                            <p>Search for job titles or skills above. We'll query real-time jobs, or provide matching
+                                listings instantly.</p>
+                        </div>
+
+                        <!-- Search Loading Skeleton -->
+                        <div class="jobs-grid" id="searchSkeleton" style="display: none;">
+                            <div class="job-card skeleton-card">
+                                <div class="skeleton-line title"></div>
+                                <div class="skeleton-line company"></div>
+                                <div class="skeleton-line loc"></div>
+                                <div class="skeleton-line desc"></div>
+                                <div class="skeleton-line button"></div>
+                            </div>
+                            <div class="job-card skeleton-card">
+                                <div class="skeleton-line title"></div>
+                                <div class="skeleton-line company"></div>
+                                <div class="skeleton-line loc"></div>
+                                <div class="skeleton-line desc"></div>
+                                <div class="skeleton-line button"></div>
+                            </div>
+                            <div class="job-card skeleton-card">
+                                <div class="skeleton-line title"></div>
+                                <div class="skeleton-line company"></div>
+                                <div class="skeleton-line loc"></div>
+                                <div class="skeleton-line desc"></div>
+                                <div class="skeleton-line button"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 4: Application Kit -->
+                <section id="view-kit" class="content-view">
+                    <!-- Unselected State -->
+                    <div id="kitUnselectedState" class="card empty-state-full">
+                        <i data-lucide="sparkles" class="empty-icon animate-pulse"></i>
+                        <h4>No Job Selected</h4>
+                        <p>To generate your AI application kit, browse jobs in the <strong>Job Search</strong> tab and
+                            click <strong>"Generate Kit"</strong> on any card.</p>
+                        <button class="btn btn-primary" onclick="window.app.navigateTo('search')">
+                            <i data-lucide="search"></i> Go to Job Search
+                        </button>
+                    </div>
+
+                    <!-- Selected / Active Job State -->
+                    <div id="kitActiveState" style="display: none;">
+                        <div class="selected-job-header card">
+                            <div class="job-header-info">
+                                <div class="company-logo-placeholder" id="kitCompanyLogo">J</div>
+                                <div>
+                                    <h2 id="kitJobTitle">Senior Business Analyst</h2>
+                                    <p class="company-loc">
+                                        <span id="kitJobCompany" class="bold-text">Acme Corporation</span> &bull;
+                                        <span id="kitJobLocation">Mumbai, India</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="job-header-actions">
+                                <button class="btn btn-outline" id="viewJobDescBtn">
+                                    <i data-lucide="eye"></i> View Job Details
+                                </button>
+                                <button class="btn btn-primary" id="regenerateKitBtn">
+                                    <i data-lucide="refresh-cw"></i> Regenerate Kit
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Generation Progress State -->
+                        <div id="kitGenerationLoading" class="card loading-kit-card" style="display: none;">
+                            <div class="loading-wrapper">
+                                <div class="loading-spinner-large"></div>
+                                <h3 id="loaderStatusTitle">Generating Application Kit...</h3>
+                                <p>Gemini is tailoring your profile for this job. This may take 5-10 seconds as we
+                                    generate cover letters, cold emails, and research details in parallel.</p>
+
+                                <div class="progress-tracker">
+                                    <div class="progress-step" id="step-0"><i data-lucide="check-circle-2"
+                                            class="step-check"></i> <span>Resume Bullet Rewriter</span></div>
+                                    <div class="progress-step" id="step-1"><i data-lucide="check-circle-2"
+                                            class="step-check"></i> <span>Cover Letter</span></div>
+                                    <div class="progress-step" id="step-2"><i data-lucide="check-circle-2"
+                                            class="step-check"></i> <span>Recruiter Cold Email</span></div>
+                                    <div class="progress-step" id="step-3"><i data-lucide="check-circle-2"
+                                            class="step-check"></i> <span>Skills Gap Analysis</span></div>
+                                    <div class="progress-step" id="step-4"><i data-lucide="check-circle-2"
+                                            class="step-check"></i> <span>Interview Prep Guide</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Kit Workspace Tabs -->
+                        <div id="kitWorkspace" class="kit-workspace-container">
+                            <!-- Tab Bar -->
+                            <div class="tab-scroll-container">
+                                <div class="kit-tabs-nav" id="kitTabsNav">
+                                    <button class="tab-nav-btn active" data-tab="0">
+                                        <i data-lucide="pencil-line"></i> Bullet Rewriter
+                                    </button>
+                                    <button class="tab-nav-btn" data-tab="1">
+                                        <i data-lucide="mail"></i> Cover Letter
+                                    </button>
+                                    <button class="tab-nav-btn" data-tab="2">
+                                        <i data-lucide="send"></i> Recruiter Email
+                                    </button>
+                                    <button class="tab-nav-btn" data-tab="3">
+                                        <i data-lucide="trending-up"></i> Skills Gap
+                                    </button>
+                                    <button class="tab-nav-btn" data-tab="4">
+                                        <i data-lucide="help-circle"></i> Interview Prep
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Tab Panels -->
+                            <div class="tab-panels-content">
+                                <div class="tab-actions-header">
+                                    <div class="tab-meta-title" id="tabMetaTitle">Resume Bullet Rewriter</div>
+                                    <button class="btn btn-secondary btn-sm" id="copyTabContentBtn">
+                                        <i data-lucide="copy" id="copyIcon"></i> <span id="copyBtnText">Copy Tab
+                                            Content</span>
+                                    </button>
+                                </div>
+
+                                <div class="tab-panel active" id="tab-panel-content">
+                                    <!-- Populated dynamically via JS -->
+                                    <div class="markdown-rendered-content" id="renderedTabBody"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW 5: Settings -->
+                <section id="view-settings" class="content-view">
+                    <div class="card settings-card">
+                        <h3>API Configuration & Keys</h3>
+                        <p class="settings-desc">Specify credentials to customize data sources. Your credentials are
+                            saved strictly in your browser local storage.</p>
+
+                        <div class="form-group mt-4">
+                            <label for="geminiApiKeyInput">Gemini API Key</label>
+                            <div class="input-password-wrapper">
+                                <input type="password" id="geminiApiKeyInput" class="form-control font-code"
+                                    placeholder="Enter your Gemini API key...">
+                                <button class="btn btn-icon-only" type="button" id="toggleGeminiKeyVisibility">
+                                    <i data-lucide="eye"></i>
+                                </button>
+                            </div>
+                            <span class="form-text">Get a free key at <a href="https://aistudio.google.com/app/apikey"
+                                    target="_blank" rel="noopener">aistudio.google.com</a>. Your key is stored only in
+                                your browser — never sent anywhere else.</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="jsearchApiKeyInput">RapidAPI JSearch Key (Optional)</label>
+                            <div class="input-password-wrapper">
+                                <input type="password" id="jsearchApiKeyInput" class="form-control font-code"
+                                    placeholder="Leave empty for mock data engine">
+                                <button class="btn btn-icon-only" type="button" id="toggleJsearchKeyVisibility">
+                                    <i data-lucide="eye"></i>
+                                </button>
+                            </div>
+                            <span class="form-text">Paste your RapidAPI key here if you want to load real job listings.
+                                If empty, the app uses its offline intelligent mockup generator.</span>
+                        </div>
+
+                        <hr class="divider">
+
+                        <h3>App Session Administration</h3>
+                        <p class="settings-desc mb-3">Clear all cached files, stored resumes, and selected job postings.
+                        </p>
+                        <button class="btn btn-danger" id="clearAllSessionDataBtn">
+                            <i data-lucide="trash-2"></i> Reset Application State
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Job Description Modal -->
+    <div class="modal-backdrop" id="jobDescModal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 id="modalJobTitle">Job Details</h3>
+                <button class="btn-icon-only" id="closeModalBtn">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalJobContent">
+                <!-- Populated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- App JavaScript Logic -->
+    <script src="app.js"></script>
+</body>
+
+</html>
